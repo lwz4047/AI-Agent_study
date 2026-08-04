@@ -5,7 +5,8 @@
 - [一、条件判断（py_if.py）](#一条件判断py_ifpy)
 - [二、循环语句（py_for.py）](#二循环语句py_forpy)
 - [三、函数（py_def.py）](#三函数py_defpy)
-- [四、学习要点速记](#四学习要点速记)
+- [四、异常处理（py_try_cach.py）](#四异常处理py_try_cachpy)
+- [五、学习要点速记](#五学习要点速记)
 
 ---
 
@@ -319,9 +320,215 @@ dis_count()
 print("外部", discount)   # 0.5，全局变量已被修改
 ```
 
+### 6. Lambda 匿名函数
+
+Lambda 是一种小型、匿名的内联函数，只能包含**一个表达式**，无需 `def` 定义。
+
+语法格式：`lambda 参数列表: 表达式`
+
+```python
+# 无参数
+f = lambda: "Hello World"
+print(f())            # Hello World
+
+# 单参数：加 10
+add10 = lambda a: a + 10
+print(add10(5))       # 15
+
+# 多参数：两数相乘
+mul = lambda a, b: a * b
+print(mul(5, 6))      # 30
+```
+
+**结合内置高阶函数使用：**
+
+| 函数 | 语法 | 作用 |
+|------|------|------|
+| `map()` | `map(func, iterable)` | 对每个元素应用函数，返回迭代器 |
+| `filter()` | `filter(func, iterable)` | 保留函数返回 `True` 的元素 |
+| `reduce()` | `reduce(func, iterable)` | 累积运算，最终合并为单值（需导入） |
+
+```python
+numbers = [1, 2, 3, 4, 5, 6, 7, 8]
+
+# map：每个元素平方
+squared = list(map(lambda x: x ** 2, [1, 2, 3, 4]))
+print(squared)        # [1, 4, 9, 16]
+
+# filter：过滤偶数
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)          # [2, 4, 6, 8]
+
+# reduce：求乘积（需 from functools import reduce）
+from functools import reduce
+product = reduce(lambda x, y: x * y, [1, 2, 3, 4, 5])
+print(product)        # 120
+```
+
 ---
 
-## 四、学习要点速记
+## 四、异常处理（py_try_cach.py）
+
+### 1. try / except 基本结构
+
+程序运行时可能产生异常，使用 `try/except` 可以捕获并处理错误，防止程序崩溃。
+
+```python
+try:
+    num = int(input("请输入一个数字："))
+    print(num)
+except Exception:          # Exception 是所有非语法错误异常的父类
+    print("输入错误！请输入一个正确的数字")
+print("=========")         # 无论是否出现异常，都会执行
+```
+
+### 2. 捕获指定异常
+
+捕获特定类型的异常，处理更精准：
+
+```python
+try:
+    num = int(input("请输入一个数字："))
+except ValueError:
+    print("传入的值不对")   # 输入非数字时触发
+```
+
+### 3. 捕获多种异常（as e）
+
+使用 `as e` 可以打印异常的具体描述信息：
+
+```python
+try:
+    print(1 / 0)
+    print("1" > 1)
+except ValueError as e:
+    print("传入的值不对", e)
+except ZeroDivisionError as e:
+    print("除数不能为 0", e)
+except TypeError as e:
+    print("类型错误", e)
+```
+
+### 4. else 与 finally
+
+| 子句 | 触发时机 | 常用场景 |
+|------|---------|----------|
+| `else` | **没有异常**时执行 | 操作成功后的后续逻辑 |
+| `finally` | **无论是否异常**都执行 | 资源释放、日志收尾 |
+
+```python
+try:
+    num = int(input("请输入数字："))
+except ValueError as e:
+    print(e)
+else:
+    print(num, type(num))   # 输入正确时执行
+finally:
+    print("程序执行完毕")    # 始终执行，即使抛出异常
+```
+
+### 5. 常见内置异常类型
+
+| 异常类型 | 触发场景 | 简单示例 |
+|---------|---------|----------|
+| `ValueError` | 类型转换失败 | `int("abc")` |
+| `ZeroDivisionError` | 除数为 0 | `1 / 0` |
+| `TypeError` | 类型不匹配的操作 | `"1" + 1` |
+| `NameError` | 访问未定义的变量 | `print(未定义变量)` |
+| `IndexError` | 列表索引越界 | `[1,2,3][99]` |
+| `KeyError` | 字典键不存在 | `d["不存在的键"]` |
+| `FileNotFoundError` | 文件不存在 | `open("不存在.txt")` |
+| `AttributeError` | 调用对象不存在的属性/方法 | `None.upper()` |
+
+### 6. 更多异常报错案例
+
+**NameError — 访问未定义变量（来自 py_try_cach.py）**
+
+```python
+try:
+    print(llll)           # llll 未定义，抛出 NameError
+finally:
+    print("ooooo")        # 即使抛出异常，finally 依然执行
+```
+
+**IndexError — 列表索引越界**
+
+```python
+try:
+    lst = [1, 2, 3]
+    print(lst[10])        # 下标 10 不存在
+except IndexError as e:
+    print("索引越界：", e)
+# 输出：索引越界：list index out of range
+```
+
+**KeyError — 字典键不存在**
+
+```python
+try:
+    d = {"name": "Alice"}
+    print(d["age"])       # 键 'age' 不存在
+except KeyError as e:
+    print("键不存在：", e)
+# 输出：键不存在：'age'
+```
+
+**FileNotFoundError — 文件不存在**
+
+```python
+try:
+    with open("data.txt", "r") as f:
+        print(f.read())
+except FileNotFoundError as e:
+    print("文件找不到：", e)
+# 输出：文件找不到：[Errno 2] No such file or directory: 'data.txt'
+```
+
+**TypeError — 类型操作错误**
+
+```python
+try:
+    result = "100" + 100  # 字符串与数字不能直接相加
+except TypeError as e:
+    print("类型错误：", e)
+# 输出：类型错误：can only concatenate str (not "int") to str
+```
+
+**AttributeError — 调用不存在的属性**
+
+```python
+try:
+    n = None
+    n.upper()             # None 没有 upper() 方法
+except AttributeError as e:
+    print("属性错误：", e)
+# 输出：属性错误：'NoneType' object has no attribute 'upper'
+```
+
+**ZeroDivisionError — 除数为零**
+
+```python
+try:
+    a, b = 10, 0
+    print(a / b)
+except ZeroDivisionError as e:
+    print("除零错误：", e)
+# 输出：除零错误：division by zero
+```
+
+**ValueError — 类型转换失败**
+
+```python
+try:
+    num = int("hello")    # 无法将字符串 'hello' 转为整数
+except ValueError as e:
+    print("值错误：", e)
+# 输出：值错误：invalid literal for int() with base 10: 'hello'
+```
+
+---
+
+## 五、学习要点速记
 
 | # | 要点 |
 |---|------|
@@ -339,6 +546,11 @@ print("外部", discount)   # 0.5，全局变量已被修改
 | 12 | 可变对象传入函数会被"引用传递"，修改影响原变量 |
 | 13 | 函数内修改全局变量需加 `global` 声明 |
 | 14 | f-string 是 Python 3.6+ 推荐的字符串格式化方式 |
+| 15 | lambda 适合一行内的简单函数，结合 `map` / `filter` / `reduce` 使用 |
+| 16 | `try/except` 捕获异常防止程序崩溃，`as e` 可打印异常详情 |
+| 17 | `else` 在无异常时执行，`finally` 无论是否异常都执行（常用于资源释放） |
+| 18 | 捕获异常尽量指定具体类型（如 `ValueError`），避免用 `Exception` 一刀切 |
+| 19 | 常见异常：`ValueError` `ZeroDivisionError` `TypeError` `NameError` `IndexError` `KeyError` `FileNotFoundError` `AttributeError` |
 
 ---
 
@@ -348,6 +560,7 @@ print("外部", discount)   # 0.5，全局变量已被修改
 python py_if.py
 python py_for.py
 python py_def.py
+python py_try_cach.py
 ```
 
 > **提示**：各文件中大部分代码以注释形式保存，学习时取消注释逐段运行体验效果更佳。
