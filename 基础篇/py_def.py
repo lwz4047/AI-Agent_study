@@ -256,13 +256,137 @@ expression 是一个表达式，用于计算并返回函数的结果。
 
 # print(even_numbers)
 
-from functools import reduce
-numbers = [1,2,3,4,5]
-# 使用 reduce() 和 lambda 函数计算乘积
-product = reduce(lambda x,y:x*y,numbers)
-# reduce 作用：
-# 依次从序列中取出两个元素传入 lambda 函数，把运算结果作为下一轮的第一个参数，持续迭代，最终合并成单个值。
-print(product)
+# from functools import reduce
+# numbers = [1,2,3,4,5]
+# # 使用 reduce() 和 lambda 函数计算乘积
+# product = reduce(lambda x,y:x*y,numbers)
+# # reduce 作用：
+# # 依次从序列中取出两个元素传入 lambda 函数，把运算结果作为下一轮的第一个参数，持续迭代，最终合并成单个值。
+# print(product)
+
+"""
+python 装饰器，装饰器（decorator）是 Python 中的一种高级功能，
+用于在不修改原函数代码的前提下，动态扩展函数或类的功能。
+本质上，装饰器是一个函数：它接收一个函数作为参数，
+并返回一个新的函数（通常是对原函数的增强版本）。
+
+装饰器通过 @decorator_name 语法应用在函数或方法定义之前。
+Python 还提供了一些内置装饰器，例如 @staticmethod 和 @classmethod。
+常见应用场景：
+日志记录：记录函数调用信息、参数和返回值
+性能统计：统计函数执行时间
+权限控制：限制函数访问权限
+缓存：缓存函数结果，提高性能
+"""
+# def timer(func):
+#     def wrapper(*args,**kwargs):
+#         print("开始计时")
+#         result = func(*args,**kwargs)
+#         print("结束计时")
+#         return result
+#     return wrapper
+#
+# def say_hello():
+#     print("Hello")
+#
+# # 这就是 @timer 背后真正执行的那行代码
+# say_hello = timer(say_hello)
+# say_hello()
+
+
+# def timer(func):
+#     print(">>> 机器内部：我正在接收原函数，并制造包装盒")
+#     def wrapper():
+#         print(">>> 包装盒：前置功能开始")
+#         func()
+#         print(">>> 包装盒：后置功能结束")
+#     print(">>> 机器内部：包装盒制造完毕，返回给外部")
+#     return wrapper
+#
+# def say_hello():
+#     print("!!! 我是原函数的核心内容 !!!")
+#
+# print("=== 第 1 阶段：程序加载，执行替换 ===")
+# say_hello = timer(say_hello)  # 这里会打印上面机器内部的报幕，但绝对不会打印 "!!!"
+# print("=== 替换结束 ===")
+#
+# print("")
+# print("=== 第 2 阶段：真正调用 ===")
+# say_hello()  # 这里才开始打印 "!!!"
+
+
+# 语法糖 @ 装饰器函数名
+"""
+你写了一个爬虫函数 get_data()，感觉它跑得很慢。
+你想知道它具体耗时多少秒，但又不想在函数里到处塞 time.time()。
+"""
+
+# import time
+# import functools
+#
+# # 这是装饰器的固定模板
+# def timer(func):
+#     @functools.wraps(func)
+#     def wrapper(*args, **kwargs):
+#         # --- 前置动作：计时开始 ---
+#         start = time.time()
+#         # 执行原函数
+#         result = func(*args, **kwargs)
+#
+#         # --- 后置动作：计时结束并打印 ---
+#         end = time.time()
+#         print(f"⏱️ 函数 [{func.__name__}] 耗时: {end - start:.4f} 秒")
+#         return result
+#     return wrapper
+
+
+# @timer
+# def get_data():
+#     print("正在爬虫---")
+#     time.sleep(2.9)
+#     return "爬到了 100 条数据"
+
+# def get_data():
+#     print("正在爬虫---")
+#     time.sleep(2.9)
+#     return "爬到了 100 条数据"
+#
+# get_data = timer(get_data)
+# result = get_data()
+# print(result) # 两种方法，普通的与语法糖
+
+
+# 带参数的装饰器，
+# 如果原函数有参数，需要在 wrapper 中使用 *args, **kwargs：
+# def my_decorator(func):
+#     def wrapper(*args,**kwargs):
+#         print("执行前：")
+#         func(*args,**kwargs)# 使用 *args, **kwargs 可以兼容任意参数函数
+#         print("执行后：")
+#     return wrapper
+#
+# @my_decorator
+# def greet(name):
+#     print(f"Hello {name}")
+#
+# greet("USA")
+
+
+# 实例2
+def repeat(number):
+    def decorator(func):
+        def wrapper(*args,**kwargs):
+            for _ in range(number):
+                func(*args,**kwargs)
+        return wrapper
+    return decorator
+
+@repeat(4)
+def sey_hello():
+    print("Helle")
+
+sey_hello()
+
 
 
 

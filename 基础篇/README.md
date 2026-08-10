@@ -365,6 +365,84 @@ product = reduce(lambda x, y: x * y, [1, 2, 3, 4, 5])
 print(product)        # 120
 ```
 
+### 7. 装饰器（Decorator）
+
+装饰器是一种**在不修改原函数代码的前提下动态扩展函数功能**的高级特性。本质是一个函数：接收一个函数作为参数，返回增强版的新函数，通过 `@装饰器名` 语法糖应用到目标函数上。
+
+**常见应用场景：** 日志记录、性能计时、权限控制、结果缓存
+
+#### 基本结构
+
+```python
+def timer(func):              # 接收原函数
+    def wrapper(*args, **kwargs):
+        print("开始计时")
+        result = func(*args, **kwargs)  # 执行原函数
+        print("结束计时")
+        return result
+    return wrapper            # 返回包装后的新函数
+
+def say_hello():
+    print("Hello")
+
+# @timer 等价于下面这行：
+say_hello = timer(say_hello)
+say_hello()
+```
+
+#### 语法糖 @
+
+```python
+@timer          # 等价于 say_hello = timer(say_hello)，在函数定义时立即替换
+def say_hello():
+    print("Hello")
+```
+
+#### 实战案例：计时装饰器
+
+```python
+import time, functools
+
+def timer(func):
+    @functools.wraps(func)    # 保留原函数名称和文档信息
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f"函数 [{func.__name__}] 耗时: {end - start:.4f} 秒")
+        return result
+    return wrapper
+
+@timer
+def get_data():
+    time.sleep(2.9)
+    return "爬到了 100 条数据"
+
+print(get_data())  # 输出：函数 [get_data] 耗时: 2.9xxx 秒
+```
+
+#### 带参数的装饰器（三层嵌套）
+
+当装饰器本身需要接收参数时，需要多套一层函数：
+
+```python
+def repeat(number):           # 最外层：接收装饰器参数
+    def decorator(func):      # 中间层：接收原函数
+        def wrapper(*args, **kwargs):
+            for _ in range(number):
+                func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@repeat(4)                    # 执行 4 次
+def say_hello():
+    print("Hello")
+
+say_hello()   # 打印 4 次 Hello
+```
+
+> **执行顺序：** `@decorator` 作用于函数定义时，装饰器**立即执行一次**完成替换；之后每次调用函数名，实际执行的是 `wrapper`。
+
 ---
 
 ## 四、异常处理（py_try_cach.py）
@@ -547,10 +625,14 @@ except ValueError as e:
 | 13 | 函数内修改全局变量需加 `global` 声明 |
 | 14 | f-string 是 Python 3.6+ 推荐的字符串格式化方式 |
 | 15 | lambda 适合一行内的简单函数，结合 `map` / `filter` / `reduce` 使用 |
-| 16 | `try/except` 捕获异常防止程序崩溃，`as e` 可打印异常详情 |
-| 17 | `else` 在无异常时执行，`finally` 无论是否异常都执行（常用于资源释放） |
-| 18 | 捕获异常尽量指定具体类型（如 `ValueError`），避免用 `Exception` 一刀切 |
-| 19 | 常见异常：`ValueError` `ZeroDivisionError` `TypeError` `NameError` `IndexError` `KeyError` `FileNotFoundError` `AttributeError` |
+| 16 | 装饰器用三层嵌套结构实现：最外层接函数、中间层是 wrapper、用 `return wrapper` 返回 |
+| 17 | `@decorator` 是语法糖，等价于 `func = decorator(func)`，函数定义时立即替换 |
+| 18 | `@functools.wraps(func)` 保留原函数名称和文档，装饰器中推荐加上 |
+| 19 | 带参数的装饰器需三层嵌套：最外层接参数、中间层接函数、最内层是 wrapper |
+| 20 | `try/except` 捕获异常防止程序崩溃，`as e` 可打印异常详情 |
+| 21 | `else` 在无异常时执行，`finally` 无论是否异常都执行（常用于资源释放） |
+| 22 | 捕获异常尽量指定具体类型（如 `ValueError`），避免用 `Exception` 一刀切 |
+| 23 | 常见异常：`ValueError` `ZeroDivisionError` `TypeError` `NameError` `IndexError` `KeyError` `FileNotFoundError` `AttributeError` |
 
 ---
 
