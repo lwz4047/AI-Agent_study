@@ -518,7 +518,66 @@ finally:
 | `FileNotFoundError` | 文件不存在 | `open("不存在.txt")` |
 | `AttributeError` | 调用对象不存在的属性/方法 | `None.upper()` |
 
-### 6. 更多异常报错案例
+### 6. 抛出异常 raise
+
+`raise` 用于**主动抛出异常**，搭配 `Exception(描述信息)` 创建异常对象后抛出：
+
+```python
+# 创建异常对象并抛出
+e = Exception("余额不足！")
+raise e
+
+# 也可以一步完成
+raise Exception("余额不足！")
+```
+
+> `raise` 触发后，程序会立即中断当前函数，若未被 `try/except` 捕获则程序崩溃。
+
+### 7. 综合实战：模拟银行取款
+
+将 `global`、`raise`、`try/except` 结合在一个完整场景中练习：
+
+```python
+# 账户余额和状态（全局变量）
+balance = 1000
+is_frozen = False
+
+def withdraw(amount):
+    """
+    取款函数
+    - 账户冻结 → 抛出冻结异常
+    - 余额不足 → 抛出余额不足异常
+    - 正常      → 扣减余额并打印
+    """
+    global balance
+    if is_frozen:
+        raise Exception("账户已冻结")
+    if balance < amount:
+        raise Exception(f"余额不足！当前余额：{balance} 元")
+    balance -= amount
+    print("取款成功，当前余额：", balance)
+
+# 第一次取款：余额充足，正常执行
+withdraw(200)             # 当前余额：800
+
+# 第二次取款：超出余额，触发异常
+try:
+    withdraw(1000)
+except Exception as e:
+    print(e)              # 余额不足！当前余额：800 元
+```
+
+**知识点对照：**
+
+| 代码 | 用到的知识点 |
+|------|--------------|
+| `global balance` | 函数内修改全局变量 |
+| `raise Exception(...)` | 主动抛出自定义异常 |
+| `if is_frozen` / `if balance < amount` | 条件判断 + 业务逻辑校验 |
+| `try / except Exception as e` | 捕获异常并打印错误信息 |
+| `f"余额不足！当前余额：{balance} 元"` | f-string 格式化输出 |
+
+### 8. 更多异常报错案例
 
 **NameError — 访问未定义变量（来自 py_try_cach.py）**
 
@@ -631,8 +690,9 @@ except ValueError as e:
 | 19 | 带参数的装饰器需三层嵌套：最外层接参数、中间层接函数、最内层是 wrapper |
 | 20 | `try/except` 捕获异常防止程序崩溃，`as e` 可打印异常详情 |
 | 21 | `else` 在无异常时执行，`finally` 无论是否异常都执行（常用于资源释放） |
-| 22 | 捕获异常尽量指定具体类型（如 `ValueError`），避免用 `Exception` 一刀切 |
-| 23 | 常见异常：`ValueError` `ZeroDivisionError` `TypeError` `NameError` `IndexError` `KeyError` `FileNotFoundError` `AttributeError` |
+| 22 | `raise Exception("描述")` 主动抛出异常，触发后立即中断当前函数 |
+| 23 | 捕获异常尽量指定具体类型（如 `ValueError`），避免用 `Exception` 一刀切 |
+| 24 | 常见异常：`ValueError` `ZeroDivisionError` `TypeError` `NameError` `IndexError` `KeyError` `FileNotFoundError` `AttributeError` |
 
 ---
 
